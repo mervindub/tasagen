@@ -1,66 +1,102 @@
 </html>
 <head>
-  <title>Generar imagen</title>
+  <title>Generar Tasa</title>
   <style type="text/css">
     @font-face {
       font-family: "OpenSansLight";
-      src: url("font.ttf");  }
-</style>
+      src: url("OpenSansLight.ttf");  }
+
+    body, html { margin: 0; padding: 0; background-color: #eee; }
+    .container {
+      width: 350px;
+      height: 100%;
+      margin: auto;
+      padding-top: 5%;
+      box-sizing: border-box;
+      text-align: center; }
+    .container > div {
+      padding: 25px 50px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      background: linear-gradient(#fff, #eee);
+      border-radius: 6px;
+      border: 1px solid #ddd; }
+    h1 { align-self: center; margin: 0 0 10px 0; cursor: default; font-family: 'OpenSansLight'; }
+    input { margin-top: 5px; outline: 0; border: 1px solid #ccc; border-radius: 4px; }
+    input[type="file"] { padding: 5px 10px; cursor: pointer; }
+    input[type="number"] { padding: 10px; font-family: 'OpenSansLight'; font-size: 1rem; }
+    button { margin-top: 15px; padding: 10px 0; font-weight: bold; outline: 0; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; font-family: 'OpenSansLight'; font-size: 1rem; }
+    button:hover { background-color: lightblue;}
+    h3 { align-self: center; margin: 10px 0 0 0; cursor: default; font-family: 'OpenSansLight'; font-size: .9rem; }
   </style>
 </head>
 <body>
-<div style="font-family: 'OpenSansLight';">
-
-  <input type="file" id="loader" accept="image/jpeg">
-  <input type="number" id="tasa" placeholder="Tasa actual" value="0.114">
-  <button onclick="download()">Generar</button>
-
+<div class="container">
+  <h1>Generar Tasa</h1>
+  <div>
+    <input type="file" accept="image/jpeg">
+    <input type="number" placeholder="Tasa">
+    <button onclick="download()">Listo!</button>
+  </div>
+  <h3>&copy; MERVIN URDANETA</h3>
+</div>
 <canvas id="canvas" style="display: none"></canvas>
 
 <script>
-  const loader = document.getElementById('loader');
-  const canvas = document.getElementById('canvas');
-
   const month = [
     'enero', 'febrero', 'marzo',
     'abril', 'mayo', 'junio',
     'julio', 'agosto', 'septiembre',
     'octubre', 'noviembre', 'diciembre'
   ];
-  const values = [20000, 30000, 40000, 50000, 60000, 70000, 80000, 90000, 100000, 150000, 200000, 300000];
+  const values = [
+    20000, 30000, 40000, 50000,
+    60000, 70000, 80000, 90000,
+    100000, 150000, 200000, 300000
+  ];
 
+  var canvas = document.getElementById('canvas');
   var ctx = canvas.getContext('2d');
   var img = new Image();
-  img.crossOrigin="anonymous";
-  loader.addEventListener('change', handleImage, false);
+ 
+  img.onload = function() { drawImage(img) }
+  img.crossOrigin= 'anonymous';
+  img.src = 'template.jpg';
+  
+  document.querySelector('input[type="file"]').addEventListener('change', handleImage, false);
+  document.querySelector('input[type="number"]').addEventListener("keyup", clickButton, false);
 
+  function clickButton(e) {
+    if (e.keyCode === 13) document.querySelector('button').click();
+  }
 
   function handleImage(e) {
     var reader = new FileReader();
-    var img = "";
     var src = "";
+
     reader.onload = function(event) {
       img = new Image();
-      img.onload = function() {
-          canvas.width = img.width;
-          canvas.height = img.height;
-          ctx.drawImage(img, 0, 0);
-      }
+      img.onload = function() { drawImage(img) }
       img.src = event.target.result;
-      src = event.target.result;
     }
-
     reader.readAsDataURL(e.target.files[0]); 
   }
 
+  function drawImage(src) {
+    canvas.width = src.width;
+    canvas.height = src.height;
+    ctx.drawImage(src, 0, 0);
+  }
+
   function download() {
-    const tasa = parseFloat(document.getElementById('tasa').value);
+    const tasa = parseFloat(document.querySelector('input[type="number"]').value);
 
     //Tasa
     ctx.textAlign = "center";
     ctx.font = "80px OpenSansLight";
     ctx.fillStyle = "#00ffc0";
-    ctx.fillText(String(tasa).replace('.',','), 615, 295);
+    ctx.fillText(String(tasa).replace('.', ','), 615, 295);
 
     //Fecha
     const dt = new Date();
